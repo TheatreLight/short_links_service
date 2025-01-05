@@ -32,17 +32,5 @@ public class DbManager {
                 "expirationDate timestamp," +
                 "foreign key (user_id) references users(id))");
     }
-
-    public int getLastId(String tableName) throws SQLException {
-        if (connection == null) {
-            throw new RuntimeException("No connection to DB");
-        }
-
-        Statement stmt = connection.createStatement();
-        String query = "select max(id) from " + tableName;
-        stmt.execute(query);
-        var result = stmt.getResultSet();
-        return result.getInt(1);
-    }
 }
 

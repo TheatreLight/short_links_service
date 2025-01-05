@@ -70,8 +70,4 @@ public class Link {
             return false;
         return LocalDateTime.now().isAfter(expirationDate.toLocalDateTime());
     }
-
-    public boolean isClickLimitGone() {
-        return clickLimit == 0;
-    }
 }

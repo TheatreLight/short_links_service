@@ -22,11 +22,6 @@ public class ConsoleView {
         return line;
     }
 
-    private boolean answer() {
-        var ans = reader();
-        return ans.equals("Y") || ans.equals("y");
-    }
-
     private void userHandler() throws Exception {
         if (authorized) return;
 
