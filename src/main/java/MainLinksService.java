@@ -1,4 +1,3 @@
-import java.sql.SQLException;
 
 public class MainLinksService {
     public static void main(String[] args) throws Exception {
@@ -14,6 +13,4 @@ public class MainLinksService {
 
         view.run();
     }
-
-
 }

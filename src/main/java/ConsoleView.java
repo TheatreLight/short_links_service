@@ -1,3 +1,7 @@
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class ConsoleView {
@@ -28,18 +32,23 @@ public class ConsoleView {
 
         message("Do you have the UUID (Y/N)?");
         var ans = reader();
-        if (ans.equals("Y") || ans.equals("y")) {
-            message("Enter your UUID.");
-            while (!controller.authorize(reader())) {
-                message("Wrong UUID. Try another.");
+        while (!authorized) {
+            if (ans.equals("Y") || ans.equals("y")) {
+                message("Enter your UUID.");
+                while (!controller.authorize(reader())) {
+                    message("Wrong UUID. Try another.");
+                }
+                authorized = true;
+            } else if (ans.equals("N") || ans.equals("n")) {
+                message(controller.getNewUUID());
+                authorized = true;
+            } else {
+                ans = reader();
             }
-        } else if(ans.equals("N") || ans.equals("n")) {
-            message(controller.getNewUUID());
         }
-        authorized = true;
     }
 
-    private void linksHandler() {
+    private void linksHandler() throws SQLException, URISyntaxException, IOException, NoSuchAlgorithmException {
         message("You have the next short links:");
         var list = controller.getListOfLinks();
         for (var link : list) {
@@ -49,22 +58,27 @@ public class ConsoleView {
             message("No created links. You can create the new one.");
         }
         message(newLinkCreating());
-        message("Enter the link you'd like to follow or space for skip:");
+        message("Enter the link you'd like to follow or 'S' for skip:");
         followLink(reader());
     }
 
-    private void followLink(String link) {
-        if (link.isEmpty()) return;
-        controller.followLink(link);
+    private void followLink(String link) throws URISyntaxException, IOException, SQLException, NoSuchAlgorithmException {
+        if (link.equals("S") || link.equals("s")) return;
+        if (!controller.followLink(link)) {
+            message("Not existed or expired link.");
+        }
     }
 
-    private String newLinkCreating() {
+    private String newLinkCreating() throws NoSuchAlgorithmException, SQLException {
         message("Create link? (Y/N)");
         var ans = reader();
         while(true) {
             if (ans.equals("Y") || ans.equals("y")) {
                 message("Enter the link you'd like shorten: ");
-                return controller.createLink(reader());
+                String link = reader();
+                message("Enter amounts of clicks you 'd like ('-1' for unlimit amount of clicks): ");
+                int clcks = Integer.parseInt(reader());
+                return controller.createLink(link, clcks);
             } else if (ans.equals("N") || ans.equals("n")) {
                 return "";
             } else {
@@ -73,12 +87,13 @@ public class ConsoleView {
         }
     }
 
-    private void quitHandler() {
+    private void quitHandler() throws SQLException, NoSuchAlgorithmException {
         message("'Q' for quit or any key for continue:");
         var ans = reader();
         if (ans.equals("Q") || ans.equals("q")) {
             isExited = true;
         }
+        controller.saveCurrentState();
     }
 
     public ConsoleView(Controller cntrl) {
