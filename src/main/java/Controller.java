@@ -28,8 +28,8 @@ public class Controller {
         return model.getLinksList();
     }
 
-    public String createLink(String link, int clicks) throws NoSuchAlgorithmException, SQLException {
-        return model.createLink(link, clicks);
+    public String createLink(String link, int clicks, int duration) throws NoSuchAlgorithmException, SQLException {
+        return model.createLink(link, clicks, duration);
     }
 
     public boolean followLink(String link) throws URISyntaxException, IOException, SQLException, NoSuchAlgorithmException {

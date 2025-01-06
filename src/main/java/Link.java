@@ -23,11 +23,11 @@ public class Link {
         expirationDate = Timestamp.valueOf(now.plus(minutes, ChronoUnit.MINUTES));
     }
 
-    public Link(String orig) {
+    public Link(String orig, int duration) {
         originalLink = orig;
         shortLink = "";
         clickLimit = -1;
-        calcExpirationDate(30);
+        calcExpirationDate(duration);
     }
 
     public void setOriginalLink(String orig) {
@@ -38,7 +38,7 @@ public class Link {
         shortLink = custom;
     }
 
-    public void setClickLLimit(int limit) {
+    public void setClickLimit(int limit) {
         clickLimit = limit;
     }
 

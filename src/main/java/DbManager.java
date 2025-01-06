@@ -31,6 +31,8 @@ public class DbManager {
                 "clickLimit integer," +
                 "expirationDate timestamp," +
                 "foreign key (user_id) references users(id))");
+        stmt.execute("create table if not exists config as select " +
+                "10 as default_clicks, 30 as default_time");
     }
 }
 

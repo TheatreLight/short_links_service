@@ -69,11 +69,13 @@ public class ConsoleView {
         var ans = reader();
         while(true) {
             if (ans.equals("Y") || ans.equals("y")) {
-                message("Enter the link you'd like shorten: ");
+                message("Enter the link you'd like shorten (start with 'http(s)://...'): ");
                 String link = reader();
-                message("Enter amounts of clicks you 'd like ('-1' for unlimit amount of clicks): ");
+                message("Enter amounts of clicks you 'd like (not less then default): ");
                 int clcks = Integer.parseInt(reader());
-                return controller.createLink(link, clcks);
+                message("Enter the link's lifetime in minutes (but no more then default): ");
+                int duration = Integer.parseInt(reader());
+                return controller.createLink(link, clcks, duration);
             } else if (ans.equals("N") || ans.equals("n")) {
                 return "";
             } else {

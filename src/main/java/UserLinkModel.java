@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 public class UserLinkModel {
@@ -50,6 +51,22 @@ public class UserLinkModel {
         pstmt.executeUpdate();
     }
 
+    private int getDefaultClicks() throws SQLException {
+        var connection = dbManager.getDbConnection();
+        Statement stmt = connection.createStatement();
+        stmt.execute("select default_clicks from config");
+        var res = stmt.getResultSet();
+        return res.getInt(1);
+    }
+
+    private int getDefaultDuration() throws SQLException {
+        var connection = dbManager.getDbConnection();
+        Statement stmt = connection.createStatement();
+        stmt.execute("select default_time from config");
+        var res = stmt.getResultSet();
+        return res.getInt(1);
+    }
+
     public void saveStateToDb() throws SQLException, NoSuchAlgorithmException {
         var connection = dbManager.getDbConnection();
         PreparedStatement pstmt = connection.prepareStatement(
@@ -62,7 +79,7 @@ public class UserLinkModel {
 
     public boolean retrieveLinkFromDb(String shortLink) throws SQLException, NoSuchAlgorithmException {
         if (userLink == null) {
-            userLink = new Link("");
+            userLink = new Link("", 0);
         } else {
             saveStateToDb();
         }
@@ -79,7 +96,7 @@ public class UserLinkModel {
         userLink.setShortLink(shortLink);
         if (result.next()) {
             userLink.setOriginalLink(result.getString(1));
-            userLink.setClickLLimit(result.getInt(2));
+            userLink.setClickLimit(result.getInt(2));
             userLink.setExpirationDate(result.getTimestamp(3));
             return true;
         }
@@ -126,9 +143,11 @@ public class UserLinkModel {
         return resList;
     }
 
-    public String createLink(String link, int clicks) throws NoSuchAlgorithmException, SQLException {
-        userLink = new Link(link);
-        userLink.setClickLLimit(clicks);
+    public String createLink(String link, int clicks, int duration) throws NoSuchAlgorithmException, SQLException {
+        int defaultDuration = getDefaultDuration();
+        userLink = new Link(link, Math.min(defaultDuration, duration));
+        int defaultClicks = getDefaultClicks();
+        userLink.setClickLimit(Math.max(defaultClicks, clicks));
         String shortLink = userLink.getShortLink();
         saveLinkToDb();
         return shortLink;
@@ -143,7 +162,7 @@ public class UserLinkModel {
             return false;
         }
         Desktop.getDesktop().browse(new URI(userLink.getOriginalLink()));
-        userLink.setClickLLimit(userLink.getClicks()-1);
+        userLink.setClickLimit(userLink.getClicks()-1);
         return true;
     }
 }
